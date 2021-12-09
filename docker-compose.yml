@@ -1,0 +1,93 @@
+# Copyright (c) 2020 Adam Johnson
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+version: "3.8"
+
+services:
+  db:
+    build:
+      context: .
+      target: pls_mysql
+    volumes:
+      - db:/var/lib/mysql
+
+  # This runs plNetServerAgent, which spawns plNetLobbyServer and plNetGameServer.
+  agent:
+    build:
+      context: .
+      target: pls_uru_server
+    command: plNetServerAgent
+    depends_on: ["db", "lookup"]
+    environment:
+      - AGENT_HTTP_PORT=7679
+      - LOBBY_HTTP_PORT=7676
+      - PLS_HTTP_PORT=7677
+    ports:
+      - "7679:7679/tcp"
+      - "7676:7676/tcp"
+      # On Windows, the "Windows Media Player Network Sharing Service" likes to live in this range.
+      # This will cause `docker-compose up` to fail. This can be fixed by disabling the aforementioned
+      # service (hosted by wmpnetwk.exe).
+      - "5000-6000:5000-6000/udp"
+    volumes:
+      - games:/opt/plServers/SavedGames
+
+  auth:
+    build:
+      context: .
+      target: pls_uru_server
+    command: plNetAuthServer
+    depends_on: ["db", "lookup"]
+    environment:
+      - AUTH_HTTP_PORT=7675
+      - PLS_HTTP_PORT=7677
+    ports:
+      - "7675:7675/tcp"
+
+  lookup:
+    build:
+      context: .
+      target: pls_uru_server
+    command: plNetLookupServer
+    depends_on: ["db"]
+    environment:
+      - PLS_HTTP_PORT=7677
+    ports:
+      - "7677:7677/tcp"
+
+  vault:
+    build:
+      context: .
+      target: pls_uru_server
+    command: plNetVaultServer
+    depends_on: ["db", "lookup"]
+    environment:
+      - PLS_HTTP_PORT=7677
+      - VAULT_HTTP_PORT=7678
+    ports:
+      - "7678:7678/tcp"
+    volumes:
+      - vault:/opt/plServers/VaultBlobs
+
+# Ensures the database persists.
+volumes:
+  db:
+  games:
+  vault:
