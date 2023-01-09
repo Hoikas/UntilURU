@@ -86,7 +86,7 @@ any password that you need to keep secret.
 
 To manage accounts on your shard, a convenience script is included with the database container
 called `manage_uu`. To use this script, you will need to invoke it inside of the database container.
-To do so, you will need to use the command `docker execute untiluru_db_1 manage_uu`. Without any
+To do so, you will need to use the command `docker exec untiluru-db-1 manage_uu`. Without any
 arguments, a simple list of help will be printed to the console.
 
 To add an account, use `manage_uu addacct [username] [password]`. If you would like to use the
