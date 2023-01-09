@@ -48,7 +48,10 @@ CMD "/bin/bash"
 
 # Database container
 FROM pls_base AS pls_mysql
-RUN apt-get install -y mysql-client mysql-server
+RUN apt-get install -y libreadline4
+RUN apt-get install -y perl
+RUN apt-get install -y mysql-client
+RUN apt-get install -y mysql-server
 COPY ["database/entrypoint.sh", "database/manage.sh", "/usr/src/"]
 RUN ln -s /usr/src/manage.sh /usr/local/bin/manage_uu
 ENTRYPOINT ["/usr/src/entrypoint.sh"]
@@ -75,7 +78,9 @@ RUN \
 
 # Uru runtime
 FROM pls_base AS pls_uru_server
-RUN apt-get install -y curl mysql-client
+RUN apt-get install -y curl
+RUN apt-get install -y perl-modules
+RUN apt-get install -y mysql-client
 COPY --from=pls_uru_builder /opt/plServers /opt/plServers
 COPY ["plasma/entrypoint.sh", "/opt/plServers/"]
 RUN \
