@@ -40,7 +40,8 @@ build and start.
 **NOTE**: If the container *untiluru_agent_1* fails to start and you are on Windows, this might be
 due to a conflict between the URU servers and the *Windows Media Player Network Sharing Service*. You
 can fix this by running `Services.msc` from the start menu and manually stopping the *Windows Media*
-*Player Network Sharing Service*.
+*Player Network Sharing Service*. Alternatively, you can modify the docker-compose.yml file to
+expose less ports.
 
 Once the servers are running, you should see lines like the following being printed to the console:
 ```

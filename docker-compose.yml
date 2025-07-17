@@ -44,7 +44,10 @@ services:
       - "7676:7676/tcp"
       # On Windows, the "Windows Media Player Network Sharing Service" likes to live in this range.
       # This will cause `docker-compose up` to fail. This can be fixed by disabling the aforementioned
-      # service (hosted by wmpnetwk.exe).
+      # service (hosted by wmpnetwk.exe). Alternatively, change this line to be:
+      # - "5000:5100:5000-5100/udp"
+      # This will reduce the number of game servers (ages) that can be spawned, but if you need more
+      # than 99 game servers, you probably won't be running this in docker.
       - "5000-6000:5000-6000/udp"
     volumes:
       - games:/opt/plServers/SavedGames
